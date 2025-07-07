@@ -234,5 +234,5 @@ def view_cme_pdf(request, cme_id):
 
 from django.shortcuts import render
 
-def home(request):
-    return render(request, 'tracker/home.html')
+def homepage(request):
+    return render(request, "home.html")
