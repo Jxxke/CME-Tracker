@@ -14,6 +14,7 @@ Pillow==9.5.0
 
 # Utility
 python-dotenv==1.0.1
+python-dateutil
 
 
 django-crontab==0.7.1
