@@ -5,6 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('', views.home, name='home'),  # this is the root URL ("/")
     path('signup/', views.signup, name='signup'),
 
     # LICENSE ROUTES

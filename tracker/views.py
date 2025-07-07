@@ -230,3 +230,9 @@ def view_cme_pdf(request, cme_id):
     response = HttpResponse(entry.certificate, content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename="certificate.pdf"'
     return response
+
+
+from django.shortcuts import render
+
+def home(request):
+    return render(request, 'tracker/home.html')
