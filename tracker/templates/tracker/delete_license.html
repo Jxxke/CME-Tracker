@@ -1,0 +1,8 @@
+<h2>Delete Medical License</h2>
+<p>Are you sure you want to delete license <strong>{{ license.license_number }}</strong>?</p>
+
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">Yes, delete</button>
+  <a href="{% url 'view_licenses' %}">Cancel</a>
+</form>

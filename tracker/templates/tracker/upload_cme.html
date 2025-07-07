@@ -1,0 +1,14 @@
+{% extends "tracker/base.html" %}
+
+{% block content %}
+  <h2>Upload CME Entry</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Upload</button>
+  </form>
+
+  <a href="{% url 'upload_license' %}">Upload License</a> |
+  <a href="{% url 'view_licenses' %}">View Licenses</a> |
+  <a href="{% url 'view_cme' %}">View CME</a>
+{% endblock %}

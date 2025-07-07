@@ -1,0 +1,41 @@
+{% extends "tracker/base.html" %}
+{% block content %}
+<h1>Your Medical Licenses</h1>
+<hr>
+
+{% if licenses %}
+  {% for item in licenses %}
+    <div style="margin-bottom: 20px;">
+      <h3>{{ item.license.profession }} — {{ item.license.state }} — {{ item.license.license_number }}</h3>
+      <p>Status: {{ item.license.status }}</p>
+      <p><strong>Renewal Date:</strong> {{ item.license.expiration_date }}</p>
+      <p><strong>Valid CME Cutoff:</strong> {{ item.cutoff_date|date:"F j, Y" }}</p>
+      <p>CME Progress: {{ item.completed }} / {{ item.required }} hours</p>
+
+      {% if item.compliant %}
+        <strong style="color: green;">✅ General CME Compliant</strong>
+      {% else %}
+        <strong style="color: red;">❌ Missing {{ item.missing|floatformat:0 }} general hours</strong>
+      {% endif %}
+
+      {% if item.special_category %}
+        <p>Special Requirement: {{ item.special_category|title }} — {{ item.special_completed }} / {{ item.special_required }} hours</p>
+
+        {% if item.special_compliant %}
+          <strong style="color: green;">✅ Special CME Compliant</strong>
+        {% else %}
+          <strong style="color: red;">❌ Missing {{ item.special_required|floatformat:0|add:"-"|add:item.special_completed|floatformat:0 }} special hours</strong>
+        {% endif %}
+      {% endif %}
+
+      <form method="post" action="{% url 'delete_license' item.license.id %}" style="margin-top: 10px;">
+        {% csrf_token %}
+        <button type="submit">🗑 Delete</button>
+      </form>
+    </div>
+    <hr>
+  {% endfor %}
+{% else %}
+  <p>No licenses found.</p>
+{% endif %}
+{% endblock %}

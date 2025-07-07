@@ -1,0 +1,42 @@
+{% extends "tracker/base.html" %}
+{% block content %}
+  <h1>My CME Entries</h1>
+
+  {% if entries %}
+    <table>
+      <thead>
+        <tr>
+          <th>Topic</th>
+          <th>Hours</th>
+          <th>Category</th>
+          <th>Date Completed</th>
+          <th>Certificate</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in entries %}
+          <tr>
+            <td>{{ entry.topic }}</td>
+            <td>{{ entry.hours }}</td>
+            <td>{{ entry.get_category_display }}</td>
+            <td>{{ entry.date_completed }}</td>
+            <td>
+              {% if entry.certificate %}
+                <a href="{% url 'view_cme_pdf' entry.id %}" target="_blank">📄 View PDF</a>
+              {% else %}
+                —
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'delete_cme' entry.id %}">🗑 Delete</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No CME entries found.</p>
+  {% endif %}
+
+{% endblock %}

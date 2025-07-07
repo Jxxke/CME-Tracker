@@ -1,0 +1,12 @@
+{% extends "tracker/base.html" %}
+
+{% block content %}
+  <h2>Delete CME Entry</h2>
+  <p>Are you sure you want to delete the CME entry titled "<strong>{{ cme.topic }}</strong>"?</p>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Yes, Delete</button>
+    <a href="{% url 'view_cme' %}">Cancel</a>
+  </form>
+{% endblock %}

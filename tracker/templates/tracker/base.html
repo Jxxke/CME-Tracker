@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CME Tracker</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 0; }
+    .navbar {
+      background: #003366;
+      color: white;
+      padding: 10px 20px;
+    }
+    .navbar a {
+      color: white;
+      margin-right: 15px;
+      text-decoration: none;
+    }
+    .navbar a:hover {
+      text-decoration: underline;
+    }
+    .container {
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <a href="{% url 'upload_license' %}">Upload License</a>
+    <a href="{% url 'upload_cme' %}">Upload CME</a>
+    <a href="{% url 'upload_pdf_cme' %}">📄 Upload CME from PDF</a>
+    <a href="{% url 'view_licenses' %}">View Licenses</a>
+    <a href="{% url 'view_cme' %}">View CME</a>
+    <form action="{% url 'logout' %}" method="post" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" style="background:none; border:none; color:white; text-decoration:underline; cursor:pointer;">
+        Logout
+      </button>
+    </form>
+  </div>
+
+  <div class="container">
+    {% block content %}
+    <!-- This is where page content goes -->
+    {% endblock %}
+  </div>
+</body>
+</html>

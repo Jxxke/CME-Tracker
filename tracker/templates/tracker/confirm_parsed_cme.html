@@ -1,0 +1,18 @@
+<h2>Confirm CME Details</h2>
+
+<p><strong>Topic:</strong> {{ topic }}</p>
+<p><strong>Hours:</strong> {{ hours }}</p>
+<p><strong>Category:</strong> {{ category }}</p>
+<p><strong>Date Completed:</strong> {{ date_completed }}</p>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <input type="hidden" name="topic" value="{{ topic }}">
+  <input type="hidden" name="hours" value="{{ hours }}">
+  <input type="hidden" name="category" value="{{ category }}">
+  <input type="hidden" name="date_completed" value="{{ date_completed|date:'Y-m-d' }}">
+  <input type="hidden" name="temp_path" value="{{ temp_path }}">
+  <button type="submit">Confirm and Save</button>
+</form>
+
+<a href="{% url 'upload_pdf_cme' %}">⬅ Back</a>
