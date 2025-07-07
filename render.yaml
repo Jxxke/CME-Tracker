@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: cme-tracker
+    env: python
+    buildCommand: |
+      apt-get update && apt-get install -y libjpeg-dev zlib1g-dev libpng-dev libopenjp2-7
+      pip install -r requirements.txt
+    startCommand: gunicorn cme_tracker_project.wsgi:application
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: cme_tracker_project.settings
+      - key: PYTHON_VERSION
+        value: 3.11.9
