@@ -159,3 +159,4 @@ SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 DEFAULT_FROM_EMAIL = "Your App Name <jakelawrencestone@gmail.com>"
 
 
+ALLOWED_HOSTS = ['cme-tracker.onrender.com', 'localhost', '127.0.0.1']
