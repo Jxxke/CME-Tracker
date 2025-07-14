@@ -61,3 +61,13 @@ class CMEEntry(models.Model):
 
     def __str__(self):
         return f"{self.topic} - {self.hours} hrs"
+
+
+class ReminderLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    license = models.ForeignKey(MedicalLicense, on_delete=models.CASCADE)
+    days_before = models.IntegerField()  # 60, 30, 15
+    sent_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'license', 'days_before')

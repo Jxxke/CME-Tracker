@@ -132,18 +132,6 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
-# email stuff
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your_email@gmail.com'
-EMAIL_HOST_PASSWORD = 'your_app_password'  # Create one at https://myaccount.google.com/apppasswords
-DEFAULT_FROM_EMAIL = 'CME Tracker <your_email@gmail.com>'
-
-
-
 INSTALLED_APPS += ['django_crontab']
 
 CRONJOBS = [
@@ -159,6 +147,7 @@ SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 DEFAULT_FROM_EMAIL = "Your App Name <jakelawrencestone@gmail.com>"
 
 
+
 ALLOWED_HOSTS = ['cme-tracker.onrender.com', 'localhost', '127.0.0.1']
 
 
@@ -170,3 +159,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'tracker/static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For production deployments
+
+
+
+import os
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DB_NAME"),
+        "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "HOST": os.environ.get("DB_HOST"),
+        "PORT": os.environ.get("DB_PORT", "5432"),
+    }
+}
