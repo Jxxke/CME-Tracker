@@ -275,13 +275,3 @@ def get_cme_defaults(request):
         return JsonResponse(data)
     except CMERule.DoesNotExist:
         return JsonResponse({}, status=404)
-
-
-from django.core.management import call_command
-from django.http import HttpResponse
-from django.contrib.auth.decorators import user_passes_test
-
-@user_passes_test(lambda u: u.is_superuser)
-def trigger_reminders(request):
-    call_command('set_reminders')
-    return HttpResponse("✅ Reminder task executed")

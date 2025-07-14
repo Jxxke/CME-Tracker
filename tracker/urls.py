@@ -21,8 +21,7 @@ urlpatterns = [
     path('cme/view/<int:cme_id>/', views.view_cme_pdf, name='view_cme_pdf'),
     path('ajax/get_cme_defaults/', views.get_cme_defaults, name='get_cme_defaults'),
 
-    path('trigger-reminders/', views.trigger_reminders, name='trigger_reminders'),
-
+    
     # AUTH
     path('accounts/login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(next_page='/accounts/login/'), name='logout'),
