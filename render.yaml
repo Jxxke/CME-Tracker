@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: cme-tracker
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn cme_tracker.wsgi
+
+  - type: cron
+    name: license-reminder-cron
+    schedule: "0 7 * * *"  # Every day at 7am UTC
+    command: "python manage.py send_license_reminders"
+    envVars:
+      - key: SENDGRID_API_KEY
+        sync: false  # Assume you're already setting it in Render dashboard
