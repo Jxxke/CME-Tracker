@@ -160,3 +160,13 @@ DEFAULT_FROM_EMAIL = "Your App Name <jakelawrencestone@gmail.com>"
 
 
 ALLOWED_HOSTS = ['cme-tracker.onrender.com', 'localhost', '127.0.0.1']
+
+
+import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'tracker/static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For production deployments

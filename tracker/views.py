@@ -6,6 +6,12 @@ from .models import CMEEntry
 from .forms import CMEEntryForm
 from .utils import check_cme_compliance
 from django.contrib.auth.forms import UserCreationForm
+from django.shortcuts import render, redirect
+from .models import CMERule
+from django.http import HttpResponse
+from .forms import CUSTOM_RULE_SENTINEL
+
+
 
 @login_required
 def upload_cme(request):
@@ -46,6 +52,7 @@ def view_cme(request):
     entries = CMEEntry.objects.filter(user=request.user).order_by('-date_completed')
     return render(request, 'tracker/view_cme.html', {'entries': entries})
 
+from .forms import MedicalLicenseForm, CUSTOM_RULE_SENTINEL
 
 @login_required
 def upload_license(request):
@@ -53,31 +60,42 @@ def upload_license(request):
         form = MedicalLicenseForm(request.POST)
         if form.is_valid():
             license = form.save(commit=False)
-
-            # Try to match a CME rule
-            try:
-                matched_rule = CMERule.objects.get(
-                    state=license.state.upper(),
-                    profession=license.profession.upper()
-                )
-                license.rule = matched_rule
-            except CMERule.DoesNotExist:
-                license.rule = None  # No rule found
-
             license.user = request.user
+            license.profession = "MD"
+
+            rule_choice = form.cleaned_data['rule_selector']
+
+            if rule_choice == CUSTOM_RULE_SENTINEL:
+                new_rule = CMERule.objects.create(
+                    state='ZZ',
+                    profession='MD',
+                    hours_required=form.cleaned_data['custom_total_cme_hours'],
+                    renewal_period=form.cleaned_data['custom_renewal_period'],
+                    special_category=form.cleaned_data['custom_special_category'],
+                    special_hours_required=form.cleaned_data['custom_special_hours_required'],
+                    notes='User-defined custom rule'
+                )
+                license.rule = new_rule
+            elif rule_choice:
+                license.rule = CMERule.objects.get(pk=int(rule_choice))
+            else:
+                license.rule = None
+
             license.save()
             return redirect('view_licenses')
+        else:
+            print("❌ Invalid form:", form.errors)
     else:
         form = MedicalLicenseForm()
+
     return render(request, 'tracker/upload_license.html', {'form': form})
 
 
 from django.shortcuts import render
-from .models import MedicalLicense, CMEEntry
 from django.contrib.auth.decorators import login_required
-from datetime import date
-from datetime import timedelta
+from .models import MedicalLicense, CMEEntry
 from dateutil.relativedelta import relativedelta
+from datetime import date
 
 @login_required
 def view_licenses(request):
@@ -85,27 +103,28 @@ def view_licenses(request):
     display_data = []
 
     for license in licenses:
-        renewal_date = license.expiration_date or date.min
-
         rule = license.rule
-        # Calculate cutoff date
-        cutoff_date = license.expiration_date - relativedelta(years=rule.renewal_period)
 
-        # Filter CME after cutoff only
-        cme_entries = CMEEntry.objects.filter(user=request.user, date_completed__gte=cutoff_date)
+        # Handle renewal years and cutoff date
+        if rule and license.expiration_date:
+            renewal_years = rule.renewal_period
+            cutoff_date = license.expiration_date - relativedelta(years=renewal_years)
+        else:
+            cutoff_date = None
 
-        # General CME hours
+        # Filter CME entries after cutoff date
+        if cutoff_date:
+            cme_entries = CMEEntry.objects.filter(user=request.user, date_completed__gte=cutoff_date)
+        else:
+            cme_entries = CMEEntry.objects.filter(user=request.user)
+
+        # Total general CME hours
         total_hours = sum(entry.hours for entry in cme_entries)
 
-        # Get rule for this license
-        if rule:
-            required = rule.hours_required
-            special_category = rule.special_category
-            special_required = rule.special_hours_required or 0
-        else:
-            required = 0
-            special_category = None
-            special_required = 0
+        # Pull rule requirements
+        required = rule.hours_required if rule else 0
+        special_category = rule.special_category if rule else None
+        special_required = rule.special_hours_required if rule else 0
 
         # Special CME hours
         if special_category:
@@ -129,6 +148,7 @@ def view_licenses(request):
         })
 
     return render(request, 'tracker/view_licenses.html', {'licenses': display_data})
+
 
 def signup(request):
     if request.method == "POST":
@@ -236,3 +256,22 @@ from django.shortcuts import render
 
 def home(request):
     return render(request, "tracker/home.html")
+
+
+from django.http import JsonResponse
+from .models import CMERule
+
+def get_cme_defaults(request):
+    state = request.GET.get('state')
+    license_type = request.GET.get('license_type')
+    try:
+        rule = CMERule.objects.get(state=state, profession=license_type)
+        data = {
+            'renewal_period_years': rule.renewal_period,
+            'total_cme_required': rule.hours_required,
+            'special_cme_category': rule.special_category,
+            'special_cme_hours_required': rule.special_hours_required
+        }
+        return JsonResponse(data)
+    except CMERule.DoesNotExist:
+        return JsonResponse({}, status=404)

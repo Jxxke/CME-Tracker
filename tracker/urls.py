@@ -19,6 +19,8 @@ urlpatterns = [
     path('cme/delete/<int:cme_id>/', views.delete_cme, name='delete_cme'),
     path('cme/upload/pdf/', views.upload_pdf_cme, name='upload_pdf_cme'),
     path('cme/view/<int:cme_id>/', views.view_cme_pdf, name='view_cme_pdf'),
+    path('ajax/get_cme_defaults/', views.get_cme_defaults, name='get_cme_defaults'),
+
 
     # AUTH
     path('accounts/login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
