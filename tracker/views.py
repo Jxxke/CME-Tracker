@@ -96,9 +96,12 @@ from django.contrib.auth.decorators import login_required
 from .models import MedicalLicense, CMEEntry
 from dateutil.relativedelta import relativedelta
 from datetime import date
+from django.db import connection
 
 @login_required
 def view_licenses(request):
+    print("DB ENGINE IN USE:", connection.settings_dict["ENGINE"])
+
     licenses = MedicalLicense.objects.filter(user=request.user)
     display_data = []
 
