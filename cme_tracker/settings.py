@@ -163,23 +163,21 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For production deployment
 
 
 import os
+from django.core.exceptions import ImproperlyConfigured
 
-if DEBUG:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.environ.get("DB_NAME"),
-            "USER": os.environ.get("DB_USER"),
-            "PASSWORD": os.environ.get("DB_PASSWORD"),
-            "HOST": os.environ.get("DB_HOST"),
-            "PORT": os.environ.get("DB_PORT", "5432"),
-        }
-    }
+def get_env_var(var_name):
+    value = os.environ.get(var_name)
+    if not value:
+        raise ImproperlyConfigured(f"Missing required environment variable: {var_name}")
+    return value
 
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": get_env_var("DB_NAME"),
+        "USER": get_env_var("DB_USER"),
+        "PASSWORD": get_env_var("DB_PASSWORD"),
+        "HOST": get_env_var("DB_HOST"),
+        "PORT": os.environ.get("DB_PORT", "5432"),
+    }
+}
