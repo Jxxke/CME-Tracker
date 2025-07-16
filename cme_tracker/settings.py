@@ -76,12 +76,12 @@ LOGIN_REDIRECT_URL = '/licenses/list/'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
+'''DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     }
-}
+}'''
 
 
 # Password validation
@@ -162,14 +162,16 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For production deployment
 
 
 
-import os
 from django.core.exceptions import ImproperlyConfigured
+import os
+from decouple import config
 
 def get_env_var(var_name):
-    value = os.environ.get(var_name)
+    value = config(var_name, default=None)
     if not value:
         raise ImproperlyConfigured(f"Missing required environment variable: {var_name}")
     return value
+
 
 DATABASES = {
     "default": {
@@ -181,3 +183,4 @@ DATABASES = {
         "PORT": os.environ.get("DB_PORT", "5432"),
     }
 }
+
