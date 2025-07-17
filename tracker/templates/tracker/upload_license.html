@@ -1,80 +1,83 @@
+{% extends "tracker/base.html" %}
 
-<h2>Upload Medical License</h2>
+{% block content %}
+    <h2>Upload Medical License</h2>
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
 
-    <!-- State -->
-    <p>
-        {{ form.state.label_tag }}
-        {{ form.state }}
-    </p>
+        <!-- State -->
+        <p>
+            {{ form.state.label_tag }}
+            {{ form.state }}
+        </p>
 
-    <!-- License Number -->
-    <p>
-        {{ form.license_number.label_tag }}
-        {{ form.license_number }}
-    </p>
+        <!-- License Number -->
+        <p>
+            {{ form.license_number.label_tag }}
+            {{ form.license_number }}
+        </p>
 
-    <!-- Status -->
-    <p>
-        {{ form.status.label_tag }}
-        {{ form.status }}
-    </p>
+        <!-- Status -->
+        <p>
+            {{ form.status.label_tag }}
+            {{ form.status }}
+        </p>
 
-    <!-- Issue Date -->
-    <p>
-        {{ form.issue_date.label_tag }}
-        {{ form.issue_date }}
-    </p>
+        <!-- Issue Date -->
+        <p>
+            {{ form.issue_date.label_tag }}
+            {{ form.issue_date }}
+        </p>
 
-    <!-- Expiration Date -->
-    <p>
-        {{ form.expiration_date.label_tag }}
-        {{ form.expiration_date }}
-    </p>
+        <!-- Expiration Date -->
+        <p>
+            {{ form.expiration_date.label_tag }}
+            {{ form.expiration_date }}
+        </p>
 
-    <!-- CME Rule Selector -->
-    <p>
-        {{ form.rule_selector.label_tag }}
-        {{ form.rule_selector }}
-    </p>
+        <!-- CME Rule Selector -->
+        <p>
+            {{ form.rule_selector.label_tag }}
+            {{ form.rule_selector }}
+        </p>
 
-    <!-- Custom CME Rule Inputs -->
-    <div class="custom-field">
-        <p>{{ form.custom_renewal_period.label_tag }} {{ form.custom_renewal_period }}</p>
-    </div>
-    <div class="custom-field">
-        <p>{{ form.custom_total_cme_hours.label_tag }} {{ form.custom_total_cme_hours }}</p>
-    </div>
-    <div class="custom-field">
-        <p>{{ form.custom_special_category.label_tag }} {{ form.custom_special_category }}</p>
-    </div>
-    <div class="custom-field">
-        <p>{{ form.custom_special_hours_required.label_tag }} {{ form.custom_special_hours_required }}</p>
-    </div>
+        <!-- Custom CME Rule Inputs -->
+        <div class="custom-field">
+            <p>{{ form.custom_renewal_period.label_tag }} {{ form.custom_renewal_period }}</p>
+        </div>
+        <div class="custom-field">
+            <p>{{ form.custom_total_cme_hours.label_tag }} {{ form.custom_total_cme_hours }}</p>
+        </div>
+        <div class="custom-field">
+            <p>{{ form.custom_special_category.label_tag }} {{ form.custom_special_category }}</p>
+        </div>
+        <div class="custom-field">
+            <p>{{ form.custom_special_hours_required.label_tag }} {{ form.custom_special_hours_required }}</p>
+        </div>
 
-    <button type="submit">Save License</button>
-</form>
+        <button type="submit">Save License</button>
+    </form>
 
-<!-- JavaScript to toggle custom fields -->
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const ruleSelect = document.getElementById("id_rule_selector");
-    const customFields = document.querySelectorAll(".custom-field");
+    <!-- JavaScript to toggle custom fields -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const ruleSelect = document.getElementById("id_rule_selector");
+        const customFields = document.querySelectorAll(".custom-field");
 
-    function toggleCustomFields() {
-        const isCustom = ruleSelect.value === "custom";
-        customFields.forEach(field => {
-            field.style.display = isCustom ? "block" : "none";
-        });
-    }
+        function toggleCustomFields() {
+            const isCustom = ruleSelect.value === "custom";
+            customFields.forEach(field => {
+                field.style.display = isCustom ? "block" : "none";
+            });
+        }
 
-    if (ruleSelect) {
-        ruleSelect.addEventListener("change", toggleCustomFields);
-        toggleCustomFields(); // Run on page load
-    } else {
-        console.error("⚠️ Could not find rule_selector dropdown");
-    }
-});
-</script>
+        if (ruleSelect) {
+            ruleSelect.addEventListener("change", toggleCustomFields);
+            toggleCustomFields(); // Run on page load
+        } else {
+            console.error("⚠️ Could not find rule_selector dropdown");
+        }
+    });
+    </script>
+{% endblock %}

@@ -4,36 +4,70 @@
 <hr>
 
 {% if licenses %}
+  <style>
+    .license-header {
+      cursor: pointer;
+      font-weight: bold;
+      padding: 8px;
+      background-color: #f0f0f0;
+      border: 1px solid #ccc;
+      margin-bottom: 5px;
+      border-radius: 5px;
+    }
+
+    .license-details {
+      display: none;
+      padding: 10px 15px;
+      border-left: 2px solid #ccc;
+      margin-bottom: 20px;
+    }
+
+    .active .license-details {
+      display: block;
+    }
+  </style>
+
+  <script>
+    function toggleLicense(id) {
+      const el = document.getElementById(id);
+      el.classList.toggle("active");
+    }
+  </script>
+
   {% for item in licenses %}
-    <div style="margin-bottom: 20px;">
-      <h3>{{ item.license.profession }} — {{ item.license.state }} — {{ item.license.license_number }}</h3>
-      <p>Status: {{ item.license.status }}</p>
-      <p><strong>Renewal Date:</strong> {{ item.license.expiration_date }}</p>
-      <p><strong>Valid CME Cutoff:</strong> {{ item.cutoff_date|date:"F j, Y" }}</p>
-      <p>CME Progress: {{ item.completed }} / {{ item.required }} hours</p>
+    <div id="license-{{ forloop.counter }}" onclick="toggleLicense('license-{{ forloop.counter }}')">
+      <div class="license-header">
+        {{ item.license.license_number }} — {{ item.license.state }}
+      </div>
+      <div class="license-details">
+        <p><strong>Profession:</strong> {{ item.license.profession }}</p>
+        <p><strong>Status:</strong> {{ item.license.status }}</p>
+        <p><strong>Renewal Date:</strong> {{ item.license.expiration_date }}</p>
+        <p><strong>Valid CME Cutoff:</strong> {{ item.cutoff_date|date:"F j, Y" }}</p>
+        <p><strong>CME Progress:</strong> {{ item.completed }} / {{ item.required }} hours</p>
 
-      {% if item.compliant %}
-        <strong style="color: green;">✅ General CME Compliant</strong>
-      {% else %}
-        <strong style="color: red;">❌ Missing {{ item.missing|floatformat:0 }} general hours</strong>
-      {% endif %}
-
-      {% if item.special_category %}
-        <p>Special Requirement: {{ item.special_category|title }} — {{ item.special_completed }} / {{ item.special_required }} hours</p>
-
-        {% if item.special_compliant %}
-          <strong style="color: green;">✅ Special CME Compliant</strong>
+        {% if item.compliant %}
+          <strong style="color: green;">✅ General CME Compliant</strong>
         {% else %}
-          <strong style="color: red;">❌ Missing {{ item.special_required|floatformat:0|add:"-"|add:item.special_completed|floatformat:0 }} special hours</strong>
+          <strong style="color: red;">❌ Missing {{ item.missing|floatformat:0 }} general hours</strong>
         {% endif %}
-      {% endif %}
 
-      <form method="post" action="{% url 'delete_license' item.license.id %}" style="margin-top: 10px;">
-        {% csrf_token %}
-        <button type="submit">🗑 Delete</button>
-      </form>
+        {% if item.special_category %}
+          <p>Special Requirement: {{ item.special_category|title }} — {{ item.special_completed }} / {{ item.special_required }} hours</p>
+
+          {% if item.special_compliant %}
+            <strong style="color: green;">✅ Special CME Compliant</strong>
+          {% else %}
+            <strong style="color: red;">❌ Missing {{ item.special_required|floatformat:0|add:"-"|add:item.special_completed|floatformat:0 }} special hours</strong>
+          {% endif %}
+        {% endif %}
+
+        <form method="post" action="{% url 'delete_license' item.license.id %}" style="margin-top: 10px;">
+          {% csrf_token %}
+          <button type="submit">🗑 Delete</button>
+        </form>
+      </div>
     </div>
-    <hr>
   {% endfor %}
 {% else %}
   <p>No licenses found.</p>
