@@ -194,14 +194,14 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from .forms import CMEUploadPDFForm
 from .models import CMEEntry, CME_CATEGORIES
-from .utils import parse_cme_pdf  # your parsing function
-import re
+from .utils import parse_cme_pdf_ai  # assuming AI parser is used now
+import os
 
 @login_required
 def upload_pdf_cme(request):
-    # STEP 4: Final confirmation step (form POST after preview)
+    # STEP 2: Final confirmation after preview
     if request.method == 'POST' and 'hours' in request.POST:
-        path = request.session.get('uploaded_pdf_path')
+        temp_path = request.POST.get('temp_path')
         cme = CMEEntry(
             user=request.user,
             topic=request.POST['topic'],
@@ -209,37 +209,38 @@ def upload_pdf_cme(request):
             category=request.POST['category'],
             date_completed=request.POST['date_completed'],
         )
-        if path:
-            with default_storage.open(path, 'rb') as f:
-                cme.certificate.save(path.split('/')[-1], f)
+        if temp_path:
+            with default_storage.open(temp_path, 'rb') as f:
+                cme.certificate.save(os.path.basename(temp_path), f)
             del request.session['uploaded_pdf_path']
         cme.save()
         return redirect('view_cme')
 
-    # STEP 1: Initial file upload
+    # STEP 1: Initial file upload and parsing
     elif request.method == 'POST':
         form = CMEUploadPDFForm(request.POST, request.FILES)
         if form.is_valid():
             file = request.FILES['pdf_file']
+            file_bytes = file.read()
 
-            # Save file temporarily
-            temp_path = default_storage.save(f'temp/{file.name}', ContentFile(file.read()))
+            # Save temp file for storage
+            temp_path = default_storage.save(f'temp/{file.name}', ContentFile(file_bytes))
             request.session['uploaded_pdf_path'] = temp_path
 
             # Parse the uploaded file
-            parsed = parse_cme_pdf(file)
+            parsed = parse_cme_pdf_ai(file_bytes)
 
             return render(request, 'tracker/confirm_parsed_cme.html', {
                 'topic': parsed['topic'],
                 'hours': parsed['hours'],
                 'category': parsed['category'],
                 'date_completed': parsed['date_completed'],
+                'temp_path': temp_path,
             })
     else:
         form = CMEUploadPDFForm()
 
     return render(request, 'tracker/upload_pdf.html', {'form': form})
-
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
