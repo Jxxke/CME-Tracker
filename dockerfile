@@ -1,36 +1,35 @@
-# Base Python image with minimal OS
+# Use official Python image
 FROM python:3.11-slim
 
-# Install system packages needed by ocrmypdf
+# Install system dependencies for ocrmypdf and general tools
 RUN apt-get update && apt-get install -y \
-    tesseract-ocr \
-    ghostscript \
-    qpdf \
+    gcc \
     libjpeg-dev \
     zlib1g-dev \
+    libpng-dev \
+    ghostscript \
+    tesseract-ocr \
+    poppler-utils \
+    qpdf \
+    unpaper \
     ocrmypdf \
-    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory inside the container
+# Set working directory
 WORKDIR /app
 
-# Copy dependency file and install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy all project files
+# Copy everything
 COPY . .
 
-# Set environment variable for Django to find settings
-ENV DJANGO_SETTINGS_MODULE=cme_tracker.settings
+# Install Python dependencies
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
 
-# Collect static files (optional if you use Django staticfiles)
+# Collect static files (optional for Django)
 RUN python manage.py collectstatic --noinput
 
-# Expose the port for Render
-ENV PORT=8000
-EXPOSE 8000
+# Run DB migrations
+RUN python manage.py migrate
 
-# Start Gunicorn web server
+# Default start command
 CMD ["gunicorn", "cme_tracker.wsgi:application", "--bind", "0.0.0.0:8000"]
