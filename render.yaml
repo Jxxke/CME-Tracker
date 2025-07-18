@@ -3,10 +3,8 @@ services:
     name: cme-tracker
     env: docker
     plan: free
-    buildCommand: ""  # no need, Dockerfile handles everything
-    startCommand: ""  # handled in Dockerfile CMD
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: cme_tracker.settings
       - key: OPENAI_API_KEY
-        sync: false  # make sure this is set in Render manually if not synced
+        sync: false
