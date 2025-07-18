@@ -251,7 +251,7 @@ Certificate text:
 """
 
         client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
-        
+
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -277,7 +277,9 @@ Certificate text:
         }
 
     except Exception as e:
-        print(f"[AI Parse Failed]: {e}")
+        print("[AI Parse Failed]:", e)
+        import traceback
+        traceback.print_exc()  # <-- this will show the exact line that crashed
         return {
             "topic": "Auto-parsed CME",
             "hours": 0.0,
