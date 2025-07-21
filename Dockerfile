@@ -1,7 +1,7 @@
 # Use an official Python base image
 FROM python:3.11-slim
 
-# Install OS-level dependencies (for ocrmypdf + Tesseract + Ghostscript)
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     ghostscript \
@@ -10,26 +10,24 @@ RUN apt-get update && apt-get install -y \
     unpaper \
     qpdf \
     curl \
-    && pip install --upgrade pip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install ocrmypdf
+# Force pip to install ocrmypdf system-wide and link it into a PATH directory
 RUN pip install --no-cache-dir ocrmypdf && \
-    ln -s /usr/local/bin/ocrmypdf /usr/bin/ocrmypdf
+    ln -sf $(which ocrmypdf) /usr/bin/ocrmypdf
 
-
-# Set work directory
+# Set working directory
 WORKDIR /app
 
 # Copy code
 COPY . .
 
-# Install Python dependencies
+# Install project dependencies
 RUN pip install -r requirements.txt
 
-# Set environment variables
+# Set env vars
 ENV PYTHONUNBUFFERED=1
 
-# Run migrations and start app (fixed line)
+# Run migrations and start app
 CMD sh -c "python manage.py migrate && gunicorn cme_tracker.wsgi:application --bind 0.0.0.0:10000"
