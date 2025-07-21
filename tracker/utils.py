@@ -94,11 +94,16 @@ def parse_cme_pdf(file_bytes):
         os.close(output_fd)
 
         # OCR the file
+        import shutil
+
+        ocr_cmd = shutil.which("ocrmypdf") or "/root/.local/bin/ocrmypdf"
         result = subprocess.run(
-            ["ocrmypdf", "--force-ocr", input_path, output_path],
+            [ocr_cmd, "--force-ocr", input_path, output_path],
             capture_output=True,
             text=True
         )
+
+
 
         if result.returncode != 0:
             print(f"[OCR ERROR] {result.stderr}")
@@ -197,12 +202,15 @@ def parse_cme_pdf_ai(file_bytes):
         output_fd, output_path = tempfile.mkstemp(suffix=".pdf")
         os.close(output_fd)
 
-        # Run OCR
+        import shutil
+
+        ocr_cmd = shutil.which("ocrmypdf") or "/root/.local/bin/ocrmypdf"
         result = subprocess.run(
-            ["ocrmypdf", "--force-ocr", input_path, output_path],
+            [ocr_cmd, "--force-ocr", input_path, output_path],
             capture_output=True,
             text=True
         )
+
         if result.returncode != 0:
             print(f"[OCR ERROR]: {result.stderr}")
             raise Exception("OCR failed")
