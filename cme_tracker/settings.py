@@ -26,21 +26,6 @@ SECRET_KEY = "django-insecure-zowcz@c($r%b25!a@h7a@49+n4q1k*xcdb4%6v9z7qiq%i8**c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-import os
-
-import os
-
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    "cme-tracker-docker.onrender.com",  # your Render URL
-]
-
-# Optional: allow dynamic environments (e.g., preview builds)
-RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-
 
 # Application definition
 
@@ -162,7 +147,17 @@ DEFAULT_FROM_EMAIL = "Your App Name <jakelawrencestone@gmail.com>"
 
 
 
-ALLOWED_HOSTS = ['cme-tracker.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "cme-tracker.onrender.com",
+    "cme-tracker-docker.onrender.com",
+]
+
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
 
 
 import os
