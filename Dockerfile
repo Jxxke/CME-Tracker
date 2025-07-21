@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install ocrmypdf
-RUN pip install ocrmypdf
-ENV PATH="/root/.local/bin:$PATH"
+RUN pip install --no-cache-dir ocrmypdf && \
+    ln -s /usr/local/bin/ocrmypdf /usr/bin/ocrmypdf
 
 
 # Set work directory
