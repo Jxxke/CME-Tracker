@@ -16,7 +16,8 @@ RUN apt-get update && apt-get install -y \
 
 # Install ocrmypdf
 RUN pip install ocrmypdf
-ENV PATH="/usr/local/bin:$PATH"
+ENV PATH="/root/.local/bin:$PATH"
+
 
 # Set work directory
 WORKDIR /app
