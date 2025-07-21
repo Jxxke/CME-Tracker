@@ -26,7 +26,18 @@ SECRET_KEY = "django-insecure-zowcz@c($r%b25!a@h7a@49+n4q1k*xcdb4%6v9z7qiq%i8**c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+import os
+
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "cme-tracker-docker.onrender.com",
+]
+
+# Optional: for safety in production
+if "RENDER_EXTERNAL_HOSTNAME" in os.environ:
+    ALLOWED_HOSTS.append(os.environ["RENDER_EXTERNAL_HOSTNAME"])
+
 
 
 # Application definition
