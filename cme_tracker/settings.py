@@ -28,19 +28,22 @@ DEBUG = True
 
 import os
 
+import os
+
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "cme-tracker-docker.onrender.com",
+    "cme-tracker-docker.onrender.com",  # your Render URL
 ]
 
-# Optional: for safety in production
-if "RENDER_EXTERNAL_HOSTNAME" in os.environ:
-    ALLOWED_HOSTS.append(os.environ["RENDER_EXTERNAL_HOSTNAME"])
-
+# Optional: allow dynamic environments (e.g., preview builds)
+RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 
 # Application definition
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
