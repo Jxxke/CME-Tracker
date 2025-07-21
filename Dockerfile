@@ -1,7 +1,8 @@
 FROM python:3.11-slim
 
 # Install system dependencies including ocrmypdf via apt, NOT pip
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     tesseract-ocr \
     ghostscript \
     libjpeg-dev \
@@ -9,11 +10,12 @@ RUN apt-get update && apt-get install -y \
     unpaper \
     qpdf \
     curl \
-    ocrmypdf \
-    && which ocrmypdf && ocrmypdf --version
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-&& ln -s /usr/bin/ocrmypdf /usr/local/bin/ocrmypdf
+    ocrmypdf && \
+    echo "OCRmyPDF location: $(which ocrmypdf)" && \
+    ln -s "$(which ocrmypdf)" /usr/local/bin/ocrmypdf && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 
 
 WORKDIR /app

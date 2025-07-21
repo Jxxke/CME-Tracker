@@ -3,6 +3,8 @@ from .models import CMEEntry
 
 from datetime import timedelta, date
 from .models import CMEEntry
+import shutil
+print("OCRmyPDF PATH:", shutil.which("ocrmypdf"))
 
 def check_cme_compliance(license):
     rule = license.rule
