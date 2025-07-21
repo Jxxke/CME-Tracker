@@ -96,7 +96,7 @@ def parse_cme_pdf(file_bytes):
         # OCR the file
         import shutil
 
-        ocr_cmd = shutil.which("ocrmypdf") or "/usr/bin/ocrmypdf"
+        ocr_cmd = shutil.which("ocrmypdf") or "/usr/local/bin/ocrmypdf"
         if not os.path.exists(ocr_cmd):
             raise FileNotFoundError(f"OCRmyPDF binary not found at {ocr_cmd}")
 
@@ -207,7 +207,7 @@ def parse_cme_pdf_ai(file_bytes):
 
         import shutil
 
-        ocr_cmd = shutil.which("ocrmypdf") or "/usr/bin/ocrmypdf"
+        ocr_cmd = shutil.which("ocrmypdf") or "/usr/local/bin/ocrmypdf"
         if not os.path.exists(ocr_cmd):
             raise FileNotFoundError(f"OCRmyPDF binary not found at {ocr_cmd}")
 
