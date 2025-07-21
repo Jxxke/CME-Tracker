@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y \
     && which ocrmypdf && ocrmypdf --version
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+&& ln -s /usr/bin/ocrmypdf /usr/local/bin/ocrmypdf
+
 
 WORKDIR /app
 
