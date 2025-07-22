@@ -162,9 +162,6 @@ DEFAULT_FROM_EMAIL = "Your App Name <jakelawrencestone@gmail.com>"
 
 
 
-ALLOWED_HOSTS = ['cme-tracker.onrender.com', 'localhost', '127.0.0.1']
-
-
 import os
 from pathlib import Path
 
