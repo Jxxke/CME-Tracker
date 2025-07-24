@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-# Install system dependencies
+# Install ocrmypdf and system dependencies
 RUN apt-get update && apt-get install -y \
     ocrmypdf \
     tesseract-ocr \
@@ -21,7 +21,13 @@ COPY . .
 # Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip && pip install -r requirements.txt
 
-# Log where ocrmypdf is installed
+# Verify ocrmypdf is in PATH
 RUN which ocrmypdf && ocrmypdf --version
 
+
+RUN echo "THIS IS THE DOCKERFILE BUILD"
+
+
+
+# Start the app
 CMD ["gunicorn", "cme_tracker.wsgi:application", "--bind", "0.0.0.0:10000"]
