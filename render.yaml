@@ -1,11 +1,11 @@
 services:
   - type: web
     name: cme-tracker
-    env: docker
-    plan: standard  # <- this MUST be set if you've upgraded
+    env: python
+    buildCommand: ./build.sh && pip install -r requirements.txt
+    startCommand: gunicorn cme_tracker.wsgi:application --bind 0.0.0.0:10000 --timeout 120 --workers 1
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: cme_tracker.settings
       - key: OPENAI_API_KEY
         sync: false
-    startCommand: gunicorn cme_tracker.wsgi:application --timeout 120 --workers 1
