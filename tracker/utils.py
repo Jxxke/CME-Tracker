@@ -1,5 +1,6 @@
 from datetime import timedelta, date
 from .models import CMEEntry
+import subprocess
 
 from datetime import timedelta, date
 from .models import CMEEntry
