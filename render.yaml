@@ -3,6 +3,7 @@ services:
     name: cme-tracker
     env: python
     buildCommand: |
+      apt-get update && apt-get install -y poppler-utils
       pip install -r requirements.txt
       python manage.py migrate
     startCommand: gunicorn cme_tracker.wsgi:application
