@@ -5,7 +5,6 @@ import subprocess
 from datetime import timedelta, date
 from .models import CMEEntry
 import shutil
-print("OCRmyPDF TEST: ", subprocess.run(["ocrmypdf", "--version"], capture_output=True, text=True).stdout)
 import os
 print("ENV PATH:", os.environ.get("PATH"))
 os.environ["PATH"] += ":/usr/bin:/usr/local/bin"
