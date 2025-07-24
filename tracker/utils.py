@@ -5,6 +5,9 @@ from datetime import timedelta, date
 from .models import CMEEntry
 import shutil
 print("OCRmyPDF PATH:", shutil.which("ocrmypdf"))
+import os
+print("ENV PATH:", os.environ.get("PATH"))
+
 
 def check_cme_compliance(license):
     rule = license.rule
@@ -98,9 +101,9 @@ def parse_cme_pdf(file_bytes):
         # OCR the file
         import shutil
 
-        ocr_cmd = "/usr/bin/ocrmypdf"
-        if not os.path.exists(ocr_cmd):
-            raise FileNotFoundError("OCRmyPDF not found at /usr/bin/ocrmypdf")
+        ocr_cmd = shutil.which("ocrmypdf")
+        if not ocr_cmd:
+            raise FileNotFoundError("OCRmyPDF not found in PATH")
 
 
 
@@ -211,9 +214,10 @@ def parse_cme_pdf_ai(file_bytes):
 
         import shutil
 
-        ocr_cmd = "/usr/bin/ocrmypdf"
-        if not os.path.exists(ocr_cmd):
-            raise FileNotFoundError("OCRmyPDF not found at /usr/bin/ocrmypdf")
+        ocr_cmd = shutil.which("ocrmypdf")
+        if not ocr_cmd:
+            raise FileNotFoundError("OCRmyPDF not found in PATH")
+
 
 
 
