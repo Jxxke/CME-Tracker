@@ -29,5 +29,7 @@ ENV PYTHONUNBUFFERED=1
 RUN which ocrmypdf && ocrmypdf --version
 
 # ENTRYPOINT preserves the environment correctly
-ENTRYPOINT ["bash", "-c"]
-CMD ["python manage.py migrate && gunicorn cme_tracker.wsgi:application --bind 0.0.0.0:10000"]
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
+CMD ["/app/start.sh"]
