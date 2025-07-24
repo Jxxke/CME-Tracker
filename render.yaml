@@ -1,18 +1,8 @@
 services:
   - type: web
     name: cme-tracker
-    env: python
-    buildCommand: |
-      apt-get update && apt-get install -y \
-        ocrmypdf \
-        tesseract-ocr \
-        ghostscript \
-        libjpeg-dev \
-        libpng-dev \
-        unpaper \
-        qpdf && \
-      pip install -r requirements.txt
-    startCommand: bash -c "which ocrmypdf && ocrmypdf --version && gunicorn cme_tracker.wsgi:application --bind 0.0.0.0:10000"
+    env: docker
+    plan: standard
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: cme_tracker.settings
