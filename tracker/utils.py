@@ -98,9 +98,10 @@ def parse_cme_pdf(file_bytes):
         # OCR the file
         import shutil
 
-        ocr_cmd = shutil.which("ocrmypdf")
-        if not ocr_cmd:
-            raise FileNotFoundError("OCRmyPDF not found in PATH")
+        ocr_cmd = "/usr/bin/ocrmypdf"
+        if not os.path.exists(ocr_cmd):
+            raise FileNotFoundError("OCRmyPDF not found at /usr/bin/ocrmypdf")
+
 
 
         result = subprocess.run(
@@ -210,9 +211,10 @@ def parse_cme_pdf_ai(file_bytes):
 
         import shutil
 
-        ocr_cmd = shutil.which("ocrmypdf")
-        if not ocr_cmd:
-            raise FileNotFoundError("OCRmyPDF not found in PATH")
+        ocr_cmd = "/usr/bin/ocrmypdf"
+        if not os.path.exists(ocr_cmd):
+            raise FileNotFoundError("OCRmyPDF not found at /usr/bin/ocrmypdf")
+
 
 
         result = subprocess.run(
