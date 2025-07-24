@@ -210,8 +210,8 @@ def parse_cme_pdf_ai(file_bytes):
             input_path = tmp_pdf.name
 
         # Convert PDF pages to images using Poppler
-        poppler_path = os.path.join(os.getcwd(), 'poppler_bin')  # Path set in render.yaml
-        images = convert_from_path(input_path, poppler_path=poppler_path)
+        images = convert_from_path(input_path)
+
 
         # Extract text from each image using pytesseract
         text = ""
