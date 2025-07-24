@@ -1,8 +1,11 @@
 services:
   - type: web
     name: cme-tracker
-    env: docker
-    plan: standard
+    env: python
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py migrate
+    startCommand: gunicorn cme_tracker.wsgi:application
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: cme_tracker.settings

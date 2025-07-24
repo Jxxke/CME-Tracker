@@ -188,13 +188,13 @@ def delete_cme(request, cme_id):
 
 
 
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from .models import CMEEntry
 from .forms import CMEUploadPDFForm
-from .models import CMEEntry, CME_CATEGORIES
-from .utils import parse_cme_pdf_ai  # assuming AI parser is used now
+from .utils import parse_cme_pdf_ai
 import os
 
 @login_required
@@ -227,8 +227,14 @@ def upload_pdf_cme(request):
             temp_path = default_storage.save(f'temp/{file.name}', ContentFile(file_bytes))
             request.session['uploaded_pdf_path'] = temp_path
 
-            # Parse the uploaded file
-            parsed = parse_cme_pdf_ai(file_bytes)
+            try:
+                parsed = parse_cme_pdf_ai(file_bytes)
+            except Exception as e:
+                print(f"[Parse Failed]: {e}")
+                return render(request, 'tracker/upload_pdf.html', {
+                    'form': form,
+                    'error': 'We couldn’t extract data from your CME PDF. Please enter it manually.'
+                })
 
             return render(request, 'tracker/confirm_parsed_cme.html', {
                 'topic': parsed['topic'],
@@ -237,10 +243,13 @@ def upload_pdf_cme(request):
                 'date_completed': parsed['date_completed'],
                 'temp_path': temp_path,
             })
+
     else:
         form = CMEUploadPDFForm()
 
     return render(request, 'tracker/upload_pdf.html', {'form': form})
+
+
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404

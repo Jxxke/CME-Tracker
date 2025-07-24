@@ -191,59 +191,40 @@ def parse_cme_pdf(file_bytes):
 
 
 
-import openai
 import tempfile
-import subprocess
-import fitz  # PyMuPDF
-import re
-import json
 import os
+import json
+import re
 from datetime import datetime
 from django.conf import settings
-
+import pytesseract
+from pdf2image import convert_from_path
+from PIL import Image
+import openai
 
 def parse_cme_pdf_ai(file_bytes):
     try:
         # Save uploaded file
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_in:
-            tmp_in.write(file_bytes)
-            input_path = tmp_in.name
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_pdf:
+            tmp_pdf.write(file_bytes)
+            input_path = tmp_pdf.name
 
-        # Prepare output OCR path
-        output_fd, output_path = tempfile.mkstemp(suffix=".pdf")
-        os.close(output_fd)
+        # Convert PDF pages to images using Poppler
+        poppler_path = os.path.join(os.getcwd(), 'poppler_bin')  # Path set in render.yaml
+        images = convert_from_path(input_path, poppler_path=poppler_path)
 
-        import shutil
-
-        ocr_cmd = shutil.which("ocrmypdf")
-        if not ocr_cmd:
-            raise FileNotFoundError("OCRmyPDF not found in PATH")
-
-
-
-
-        result = subprocess.run(
-            [ocr_cmd, "--force-ocr", input_path, output_path],
-            capture_output=True,
-            text=True
-        )
-
-        if result.returncode != 0:
-            print(f"[OCR ERROR]: {result.stderr}")
-            raise Exception("OCR failed")
-
-        # Extract text from OCR'd PDF
-        doc = fitz.open(output_path)
-        text = "\n".join(page.get_text() for page in doc)
-        doc.close()
+        # Extract text from each image using pytesseract
+        text = ""
+        for i, image in enumerate(images):
+            page_text = pytesseract.image_to_string(image)
+            text += f"\n\n=== PAGE {i+1} ===\n\n{page_text}"
 
         os.remove(input_path)
-        os.remove(output_path)
 
         if not text.strip():
             raise ValueError("Empty text extracted from PDF")
 
-        # GPT prompt (enforce JSON)
+        # GPT prompt (same as before)
         prompt = f"""
 You are a medical compliance assistant. Given the text of a CME certificate, extract the following fields in valid JSON format:
 
@@ -260,7 +241,7 @@ You are a medical compliance assistant. Given the text of a CME certificate, ext
     "Child Abuse",
     "Public Health",
     "Medical Errors",
-    "General"
+    "General",
     "Geriatrics/End of Life"
   "date_completed": "YYYY-MM-DD"
 }}
@@ -304,10 +285,11 @@ Certificate text:
     except Exception as e:
         print("[AI Parse Failed]:", e)
         import traceback
-        traceback.print_exc()  # <-- this will show the exact line that crashed
+        traceback.print_exc()
         return {
             "topic": "Auto-parsed CME",
             "hours": 0.0,
             "date_completed": datetime.today().date(),
             "category": "Unknown"
         }
+
