@@ -14,6 +14,7 @@ from .forms import CMEUploadPDFForm
 from PyPDF2 import PdfReader
 from pdf2image import convert_from_bytes, convert_from_path
 import pytesseract
+pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
 import fitz  # PyMuPDF
 from PIL import Image
 import openai
