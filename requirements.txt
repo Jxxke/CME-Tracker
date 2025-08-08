@@ -43,4 +43,6 @@ Werkzeug==3.1.3
 pdf2image
 pytesseract
 Pillow
-poppler-utils
+# The following are system packages, not Python packages. Remove them from requirements.txt:
+# poppler-utils
+# ocrmypdf

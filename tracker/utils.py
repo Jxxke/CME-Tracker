@@ -1,49 +1,42 @@
-from datetime import timedelta, date
-from .models import CMEEntry
-import subprocess
-
-from datetime import timedelta, date
-from .models import CMEEntry
-import shutil
-import os
-print("ENV PATH:", os.environ.get("PATH"))
 os.environ["PATH"] += ":/usr/bin:/usr/local/bin"
+
+import os
+import re
+import tempfile
+import json
+import shutil
+import subprocess
+from datetime import timedelta, date, datetime
+from django.conf import settings
+from django.core.files.storage import default_storage
+from django.contrib.auth.decorators import login_required
+from .models import CMEEntry, CME_CATEGORIES
+from .forms import CMEUploadPDFForm
+from PyPDF2 import PdfReader
+from pdf2image import convert_from_bytes, convert_from_path
+import pytesseract
+import fitz  # PyMuPDF
+from PIL import Image
+import openai
 
 
 def check_cme_compliance(license):
     rule = license.rule
     if not rule:
         return (None, 0, 0)
-
     # Only count CME within the renewal period
     cutoff_date = date.today() - timedelta(days=365 * rule.renewal_period)
     entries = CMEEntry.objects.filter(
         license=license,
         date_completed__gte=cutoff_date
     )
-
     total_hours = sum(entry.hours for entry in entries)
     is_compliant = total_hours >= rule.hours_required
-
     return (is_compliant, total_hours, rule.hours_required)
 
 
-from django.core.files.storage import default_storage
-from django.contrib.auth.decorators import login_required
-import fitz  # PyMuPDF
-import re
-from .forms import CMEUploadPDFForm
-from .models import CME_CATEGORIES
-from PyPDF2 import PdfReader
-from datetime import datetime
-from .models import CME_CATEGORIES
-from pdf2image import convert_from_bytes
-import pytesseract
 
-import fitz  # PyMuPDF
-import re
 
-def clean_text(text):
     text = text.lower()
     text = re.sub(r'\b\d{1,2}/\d{1,2}/\d{2,4}\b', '', text)  # dates
     text = re.sub(r'page\s+\d+\s+(of\s+\d+)?', '', text)
@@ -73,21 +66,8 @@ def extract_cme_hours(text):
 
 
 
-import fitz  # PyMuPDF
-import re
-from datetime import datetime
-import tempfile
-import subprocess
-import os
 
-import fitz
-import tempfile
-import subprocess
-import os
-import re
-from datetime import datetime
 
-def parse_cme_pdf(file_bytes):
     try:
         # Save uploaded file to temp
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_in:
@@ -100,13 +80,9 @@ def parse_cme_pdf(file_bytes):
         os.close(output_fd)
 
         # OCR the file
-        import shutil
-
         ocr_cmd = shutil.which("ocrmypdf")
         if not ocr_cmd:
-            raise FileNotFoundError("OCRmyPDF not found in PATH")
-
-
+            raise FileNotFoundError("OCRmyPDF not found in PATH. Please ensure ocrmypdf is installed on your server.")
 
         result = subprocess.run(
             [ocr_cmd, "--force-ocr", input_path, output_path],
@@ -114,43 +90,39 @@ def parse_cme_pdf(file_bytes):
             text=True
         )
 
-
-
         if result.returncode != 0:
-            print(f"[OCR ERROR] {result.stderr}")
-            raise Exception("OCR failed")
+            raise RuntimeError(f"OCR failed: {result.stderr}")
 
         # Read OCR'd text
         doc = fitz.open(output_path)
         text = "".join(page.get_text() for page in doc)
         doc.close()
 
-        os.remove(input_path)
-        os.remove(output_path)
+        # Clean up temp files
+        try:
+            os.remove(input_path)
+        except Exception:
+            pass
+        try:
+            os.remove(output_path)
+        except Exception:
+            pass
 
-        # ------------------
-        # ------------------
         # Parse CME hours (strict, context-aware)
         hours = 0.0
-
-        # Match phrases like "4.0 AMA PRA Category 1 Credit(s)" or "4 hours"
         matches = re.findall(
             r'(?<!\d)(\d{1,2}(?:\.\d+)?)\s+(AMA PRA\s+Category\s+1\s+Credits?|Credits?|Hours?|Hrs?)(?!\s*\d)',
             text,
             re.IGNORECASE
         )
-
-        # Pick first reasonable match
         for match in matches:
             try:
                 value = float(match[0])
-                if 0.0 < value < 100:  # sanity check
+                if 0.0 < value < 100:
                     hours = value
                     break
-            except:
+            except Exception:
                 continue
-
-
 
         # Parse date
         date_match = re.search(
@@ -160,7 +132,7 @@ def parse_cme_pdf(file_bytes):
         if date_match:
             try:
                 date_completed = datetime.strptime(date_match.group(), "%B %d, %Y").date()
-            except:
+            except Exception:
                 date_completed = datetime.today().date()
         else:
             date_completed = datetime.today().date()
@@ -181,7 +153,8 @@ def parse_cme_pdf(file_bytes):
         }
 
     except Exception as e:
-        print(f"[ERROR in parse_cme_pdf]: {e}")
+        import logging
+        logging.exception("[ERROR in parse_cme_pdf]")
         return {
             "topic": "Auto-parsed CME",
             "hours": 0.0,
@@ -190,17 +163,6 @@ def parse_cme_pdf(file_bytes):
         }
 
 
-
-import tempfile
-import os
-import json
-import re
-from datetime import datetime
-from django.conf import settings
-import pytesseract
-from pdf2image import convert_from_path
-from PIL import Image
-import openai
 
 def parse_cme_pdf_ai(file_bytes):
     try:
@@ -212,14 +174,16 @@ def parse_cme_pdf_ai(file_bytes):
         # Convert PDF pages to images using Poppler
         images = convert_from_path(input_path)
 
-
         # Extract text from each image using pytesseract
         text = ""
         for i, image in enumerate(images):
             page_text = pytesseract.image_to_string(image)
             text += f"\n\n=== PAGE {i+1} ===\n\n{page_text}"
 
-        os.remove(input_path)
+        try:
+            os.remove(input_path)
+        except Exception:
+            pass
 
         if not text.strip():
             raise ValueError("Empty text extracted from PDF")
@@ -270,8 +234,6 @@ Certificate text:
         ai_output = response.choices[0].message.content.strip()
         ai_output = re.sub(r"^```(?:json)?\s*|```$", "", ai_output.strip(), flags=re.IGNORECASE)
 
-        print(f"[AI RESPONSE]: {ai_output}")
-
         # Parse as JSON
         result = json.loads(ai_output)
 
@@ -283,9 +245,8 @@ Certificate text:
         }
 
     except Exception as e:
-        print("[AI Parse Failed]:", e)
-        import traceback
-        traceback.print_exc()
+        import logging
+        logging.exception("[AI Parse Failed]")
         return {
             "topic": "Auto-parsed CME",
             "hours": 0.0,
