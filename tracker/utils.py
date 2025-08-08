@@ -1,4 +1,3 @@
-os.environ["PATH"] += ":/usr/bin:/usr/local/bin"
 
 import os
 import re
